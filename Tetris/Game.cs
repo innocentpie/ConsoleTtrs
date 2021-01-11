@@ -20,25 +20,31 @@ namespace Tetris
             Clockwise = 1
         }
 
+        #region Characters
+
         /// <summary>
         /// DoubleSpace
         /// </summary>
         const string dsp = "  ";
-        
+
         /// <summary>
         /// SingleSpace
         /// </summary>
         const char ssp = ' ';
-        
+
         /// <summary>
         /// Border
         /// </summary>
         const string bor = "\u25A1 ";
-        
+
         /// <summary>
         /// Square
         /// </summary>
         const string sq = "\u25A0 ";
+
+        #endregion
+
+        #region FPS/Speed Settings
 
         const float checkInputFPS = 60f;
 
@@ -46,8 +52,9 @@ namespace Tetris
         const float originalTileFallingFPS = 1.3f;
         private float tileFallingFPS = 1.3f;
 
+        #endregion
 
-        // Controls >->
+        #region Controls
 
         const char rotateClockwiseChar = 'e';
         const char rotateCounterClockwiseChar = 'q';
@@ -58,6 +65,9 @@ namespace Tetris
 
         const char restartGameChar = 'r';
 
+        #endregion
+
+        #region Properties
 
         public int BodyWidth
         {
@@ -69,10 +79,17 @@ namespace Tetris
             get => bodyTileMatrix.GetLength(0);
         }
 
+        #endregion
+
+        #region Public Other
 
         public int score = 0000000;
 
         public List<Tile> tileSet;
+
+        #endregion
+
+        #region Private Other
 
         private Random rnd;
 
@@ -90,8 +107,11 @@ namespace Tetris
         private bool spawnNextCycle = false;
         private bool lost = true;
 
+        #endregion
+
+
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
         /// <param name="height">Minimum is 4</param>
         /// <param name="width">Minimum is 10</param>
@@ -115,7 +135,7 @@ namespace Tetris
             {
                 for (int j = 0; j < width; j++)
                 {
-                    bodyColorMatrix[i, j] = ConsoleColor.Black;
+                    bodyColorMatrix[i, j] = ConsoleColor.White;
                 }
             }
         }
@@ -143,6 +163,7 @@ namespace Tetris
 
             while (true)
             {
+                // Increase speed every second by the defined constant value above
                 if (!lost && speedIncreaseSw.ElapsedMilliseconds / 1000f >= 1f)
                 {
                     // Check the console cursor visibility (it will become visible if the player resized the console window)
@@ -153,54 +174,77 @@ namespace Tetris
                     speedIncreaseSw.Restart();
                 }
 
-                if (!lost && checkInputSw.ElapsedMilliseconds / 1000f >= 1f / checkInputFPS)
+                // Check for user input
+                if (checkInputSw.ElapsedMilliseconds / 1000f >= 1f / checkInputFPS)
                 {
                     if (Console.KeyAvailable)
                     {
-                        char readKey = Console.ReadKey(true).KeyChar;
 
-                        switch (readKey)
+                        // In the game
+                        if (!lost)
                         {
-                            case rotateClockwiseChar:
-                                RotateTile(RotateDirection.Clockwise);
-                                Update();
-                                break;
+                            char readKey = Console.ReadKey(true).KeyChar;
 
-                            case rotateCounterClockwiseChar:
-                                RotateTile(RotateDirection.CounterClockwise);
-                                Update();
-                                break;
+                            switch (readKey)
+                            {
+                                case rotateClockwiseChar:
+                                    RotateTile(RotateDirection.Clockwise);
+                                    Update();
+                                    break;
 
-                            case moveLeft:
-                                MoveTile(MoveDirection.Left);
-                                Update();
-                                break;
+                                case rotateCounterClockwiseChar:
+                                    RotateTile(RotateDirection.CounterClockwise);
+                                    Update();
+                                    break;
 
-                            case moveRight:
-                                MoveTile(MoveDirection.Right);
-                                Update();
-                                break;
+                                case moveLeft:
+                                    MoveTile(MoveDirection.Left);
+                                    Update();
+                                    break;
 
-                            case moveDown:
-                                tileFallSw.Restart();
-                                MoveTile(MoveDirection.Down);
-                                if (spawnNextCycle)
-                                {
-                                    if (!SpawnTile())
-                                        lost = true;
-                                    spawnNextCycle = false;
-                                }
+                                case moveRight:
+                                    MoveTile(MoveDirection.Right);
+                                    Update();
+                                    break;
 
-                                Update();
-                                break;
+                                case moveDown:
+                                    tileFallSw.Restart();
+                                    MoveTile(MoveDirection.Down);
+                                    if (spawnNextCycle)
+                                    {
+                                        if (!SpawnTile())
+                                            lost = true;
+                                        spawnNextCycle = false;
+                                    }
 
-                            default:
-                                break;
+                                    Update();
+                                    break;
+
+                                default:
+                                    break;
+                            }
                         }
+                        // In the endgame screen
+                        else
+                        {
+                            if (Console.ReadKey(true).KeyChar == restartGameChar)
+                            {
+                                Restart();
+                                tileFallingFPS = originalTileFallingFPS;
+                                currentTile = null;
+                                nextTile = new Tile(tileSet[rnd.Next(0, tileSet.Count)].Original);
+                                spawnNextCycle = true;
+                                lost = false;
+                            }
+                        }
+
                     }
+
                     checkInputSw.Restart();
                 }
 
+                
+                // Responsible for the current tile falling down
                 if (!lost && tileFallSw.ElapsedMilliseconds / 1000f >= 1f / tileFallingFPS)
                 {
                     MoveTile(MoveDirection.Down);
@@ -218,24 +262,13 @@ namespace Tetris
                     tileFallSw.Restart();
                 }
 
-                if (lost)
-                {
-                    if (Console.KeyAvailable)
-                    {
-                        if (Console.ReadKey(true).KeyChar == restartGameChar)
-                        {
-                            Restart();
-                            tileFallingFPS = originalTileFallingFPS;
-                            currentTile = null;
-                            nextTile = new Tile(tileSet[rnd.Next(0, tileSet.Count)].Original);
-                            spawnNextCycle = true;
-                            lost = false;
-                        }
-                    }
-                }
             }
         }
 
+
+        /// <summary>
+        /// Resets the body matrix and generates new tiles for current and next
+        /// </summary>
         private void Restart()
         {
             score = 0;
@@ -250,13 +283,17 @@ namespace Tetris
             }
         }
 
+
+        /// <summary>
+        /// Prints the game to the console
+        /// </summary>
         private void Update()
         {
-            //Clear(0, 0, BodyWidth * 2 + 4, BodyHeight + 2 + 1 + 6);
             Console.SetCursorPosition(0, 0);
             DrawHead();
             DrawBody();
 
+            // Contains the next tile, score and controls
             void DrawHead()
             {
                 // Just the text
@@ -294,6 +331,7 @@ namespace Tetris
 
             }
 
+            // Contains the game and the lose screen
             void DrawBody()
             {
                 // More text
@@ -323,7 +361,7 @@ namespace Tetris
                         // 20 long the end
                         Console.WriteLine(push + bor + gameEndPush + "################### " + gameEndPush + bor + dsp);
                         Console.WriteLine(push + bor + gameEndPush + "#    GAME ENDED   # " + gameEndPush + bor + dsp);
-                        Console.WriteLine(push + bor + gameEndPush + $"#   RESTART: \"{restartGameChar}\"  # " + gameEndPush + bor + dsp);
+                        Console.WriteLine(push + bor + gameEndPush + $"#   RESTART: '{restartGameChar}'  # " + gameEndPush + bor + dsp);
                         Console.WriteLine(push + bor + gameEndPush + "################### " + gameEndPush + bor + dsp);
                         i += 3;
                         continue;
@@ -437,6 +475,11 @@ namespace Tetris
             return true;
         }
 
+
+        /// <summary>
+        /// Moves the current tile in the given direction
+        /// </summary>
+        /// <param name="direction"></param>
         public void MoveTile(MoveDirection direction)
         {
             switch (direction)
@@ -457,6 +500,7 @@ namespace Tetris
                     break;
             }
 
+            // Determines if the current tile can move to the new position
             bool CanMove((int, int) newTopLeft)
             {
                 if (currentTile == null)
@@ -522,6 +566,12 @@ namespace Tetris
             }
         }
 
+
+
+        /// <summary>
+        /// Rotates the current tile in the given direction
+        /// </summary>
+        /// <param name="direction"></param>
         public void RotateTile(RotateDirection direction)
         {
             switch (direction)
@@ -537,6 +587,7 @@ namespace Tetris
                     break;
             }
 
+            // Determines if the current tile can be rotated in the given direction
             bool CanRotate()
             {
                 if (currentTile == null)
@@ -597,6 +648,11 @@ namespace Tetris
             }
         }
 
+
+
+        /// <summary>
+        /// Checks for completed rows, deletes them, adds to the score and moves above tiles down
+        /// </summary>
         public void CheckForFullRows()
         {
             List<int> rowsToDelete = new List<int>();
@@ -704,6 +760,8 @@ namespace Tetris
         }
 
 
+        #region ConvertMatrixToChar
+
         /// <summary>
         /// BodyMatrixElementToChar
         /// </summary>
@@ -725,6 +783,9 @@ namespace Tetris
 
             return dsp;
         }
+
+
+        #endregion
 
 
         /// <summary>

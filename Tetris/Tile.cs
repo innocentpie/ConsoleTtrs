@@ -15,18 +15,24 @@ namespace Tetris
         public ConsoleColor color;
 
         /// <summary>
-        /// (4, 4) 2d array
-        /// <br></br>
-        /// 0 means blank (no block)
-        /// <br></br>
-        /// 1 means block is there
+        /// The matrix given at creation
         /// </summary>
         public bool[,] Original { get; private set; }
 
+
+        /// <summary>
+        /// The rotated matrix (used for storing the tile's state
+        /// </summary>
         public bool[,] Rotated { get; private set; }
 
 
-
+        /// <param name="tileMatrix4row4col">
+        ///     (4, 4) 2d array
+        ///     <br></br>
+        ///     0 means blank (no block)
+        ///     <br></br>
+        ///     1 means block is there
+        /// </param>
         public Tile(bool[,] tileMatrix4row4col)
         {
             Original = new bool[4, 4];
@@ -44,7 +50,12 @@ namespace Tetris
         }
 
 
-
+        /// <summary>
+        /// Rotates the matrix in the given direction
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <param name="storeRotated">True, if the rotated matrix should be stored for later use (save it's state)</param>
+        /// <returns></returns>
         public bool[,] RotateMatrix(Rotation rotation, bool storeRotated)
         {
             if (storeRotated)
@@ -66,6 +77,8 @@ namespace Tetris
                 return copy;
             }
         }
+
+
 
         private static void RotateMatrixCounterClockwise90(int n, bool[,] matrix)
         {
