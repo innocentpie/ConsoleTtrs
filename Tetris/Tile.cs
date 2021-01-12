@@ -27,7 +27,7 @@ namespace Tetris
 
 
         /// <param name="tileMatrix4row4col">
-        ///     (4, 4) 2d array
+        ///     [4, 4] length 2d array that gets copied
         ///     <br></br>
         ///     0 means blank (no block)
         ///     <br></br>

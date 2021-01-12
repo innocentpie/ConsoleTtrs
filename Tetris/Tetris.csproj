@@ -10,6 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Tiles.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="[ONTIVA.COM] The Musical Ghost and Kozmos - Tetris Theme [Royalty Free_Creative Commons]-HQ.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
