@@ -10,6 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="music.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="The Musical Ghost and Kozmos - Tetris Theme [Royalty Free_Creative Commons]-HQ %28mp3cut.net%29.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Tiles.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

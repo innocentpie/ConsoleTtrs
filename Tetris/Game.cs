@@ -145,6 +145,9 @@ namespace Tetris
 
         public void StartGame()
         {
+            System.Media.SoundPlayer soundPlayer = new System.Media.SoundPlayer("music.wav");
+            soundPlayer.PlayLooping();
+
             Console.CursorVisible = false;
             Console.InputEncoding = System.Text.Encoding.UTF8;
 
